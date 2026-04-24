@@ -34,27 +34,21 @@ fbq('track', 'PageView');
 </script>
 
 <noscript>
-  <img
-    height="1"
-    width="1"
-    style="display:none"
-    alt=""
-    src="https://www.facebook.com/tr?id=828465140306779&ev=PageView&noscript=1"
-  />
+  <img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1324377242868914&ev=PageView&noscript=1"/>
 </noscript>
 
 <style>
 *{box-sizing:border-box;}
-body{margin:0;background:#000;font-family:system-ui,-apple-system,"PingFang TC","Noto Sans TC",Arial,sans-serif;}
+body{margin:0;background:#000;font-family:system-ui;}
 .wrapper{display:flex;justify-content:center;align-items:center;min-height:100vh;}
 .frame{position:relative;width:100%;max-width:420px;aspect-ratio:9/16;overflow:hidden;background:#000;}
-.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;user-select:none;-webkit-user-drag:none;}
-.logo{position:absolute;top:-25%;left:50%;transform:translateX(-50%);width:100%;display:block;pointer-events:none;user-select:none;-webkit-user-drag:none;}
-.ip{position:absolute;bottom:-10%;left:50%;transform:translateX(-50%);width:100%;display:block;pointer-events:none;user-select:none;-webkit-user-drag:none;}
-.btnWrapper{position:absolute;bottom:-10%;left:50%;transform:translateX(-50%);width:80%;z-index:5;}
-.goLine{display:block;width:100%;text-decoration:none;-webkit-tap-highlight-color:transparent;outline:none;}
-.btn{width:100%;cursor:pointer;display:block;animation:breath 1.8s ease-in-out infinite;user-select:none;-webkit-user-drag:none;}
-.goLine.is-disabled{pointer-events:none;opacity:.98;}
+.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.logo{position:absolute;top:-25%;left:50%;transform:translateX(-50%);width:100%;}
+.ip{position:absolute;bottom:-10%;left:50%;transform:translateX(-50%);width:100%;}
+.btnWrapper{position:absolute;bottom:-10%;left:50%;transform:translateX(-50%);width:80%;}
+.goLine{display:block;width:100%;}
+.btn{width:100%;animation:breath 1.8s infinite;}
 @keyframes breath{0%{transform:scale(1);}50%{transform:scale(1.08);}100%{transform:scale(1);}}
 </style>
 </head>
@@ -62,19 +56,13 @@ body{margin:0;background:#000;font-family:system-ui,-apple-system,"PingFang TC",
 <body>
 <div class="wrapper">
   <div class="frame">
-    <img src="assets/bg.jpg" class="bg" alt="" loading="eager">
-    <img src="assets/logo.png" class="logo" alt="" loading="eager">
-    <img src="assets/ip.png" class="ip" alt="" loading="eager">
+    <img src="assets/bg.jpg" class="bg">
+    <img src="assets/logo.png" class="logo">
+    <img src="assets/ip.png" class="ip">
 
     <div class="btnWrapper">
-      <a
-        href="https://lin.ee/psmuO6O"
-        class="goLine"
-        data-area="main_cta"
-        rel="noopener"
-        aria-label="加入官方LINE"
-      >
-        <img src="assets/btn.png" class="btn" alt="加入官方LINE" loading="eager">
+      <a href="https://lin.ee/psmuO6O" class="goLine" data-area="main_cta">
+        <img src="assets/btn.png" class="btn">
       </a>
     </div>
   </div>
@@ -82,106 +70,49 @@ body{margin:0;background:#000;font-family:system-ui,-apple-system,"PingFang TC",
 
 <script>
 (function(){
-  var PIXEL_ID = window.APP_CONFIG.PIXEL_ID;
   var LINE_URL = window.APP_CONFIG.LINE_URL;
   var REDIRECT_DELAY = window.APP_CONFIG.REDIRECT_DELAY;
-
-  var links = document.querySelectorAll('.goLine');
-  if (!links || !links.length) return;
-
   var clicked = false;
-  var redirectTimer = null;
 
-  function createEventId(){
-    if (window.crypto && typeof window.crypto.randomUUID === 'function') {
-      return window.crypto.randomUUID();
-    }
+  function uuid(){
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){
-      var r = Math.random()*16|0;
-      var v = c === 'x' ? r : (r & 0x3 | 0x8);
+      var r=Math.random()*16|0,v=c=='x'?r:(r&0x3|0x8);
       return v.toString(16);
     });
   }
 
-  function resetState(){
-    clicked = false;
-    if (redirectTimer) {
-      clearTimeout(redirectTimer);
-      redirectTimer = null;
-    }
-    links.forEach(function(a){
-      a.style.pointerEvents = '';
-      a.classList.remove('is-disabled');
-    });
-  }
-
-  function go(){
-    window.location.href = LINE_URL;
-  }
-
-  function sendTrack(eventName, params, options){
-    try{
-      if (typeof fbq === 'function') {
-        fbq('track', eventName, params, options);
-      }
-    }catch(e){}
-  }
-
-  function sendTrackCustom(eventName, params, options){
-    try{
-      if (typeof fbq === 'function') {
-        fbq('trackCustom', eventName, params, options);
-      }
-    }catch(e){}
-  }
-
   function fireEvents(area){
-    var eventId = createEventId();
-
-    var contactParams = {
-      content_name: 'line_contact_click',
-      content_category: 'line_redirect',
-      contact_method: 'line',
-      click_area: area || 'main_cta',
-      destination: 'official_line'
+    var params = {
+      content_name:'line_contact_click',
+      content_category:'line_redirect',
+      contact_method:'line',
+      click_area:area || 'main_cta',
+      destination:'official_line'
     };
 
-    var customParams = {
-      click_area: area || 'main_cta',
-      destination: 'official_line',
-      contact_method: 'line'
-    };
-
-    sendTrack('Contact', contactParams, { eventID: eventId });
-    sendTrackCustom('LineClick', customParams, { eventID: eventId });
+    fbq('track','Contact',params,{eventID:'c_'+uuid()});
+    fbq('track','Lead',params,{eventID:'l_'+uuid()});
+    fbq('trackCustom','LineClick',params,{eventID:'lc_'+uuid()});
   }
 
-  window.addEventListener('pageshow', function(event){
-    if (event.persisted) {
-      resetState();
-    } else {
-      clicked = false;
-    }
+  function handleClick(e){
+    e.preventDefault();
+    if(clicked) return;
+    clicked = true;
+
+    fireEvents(this.dataset.area);
+
+    setTimeout(function(){
+      window.location.href = LINE_URL;
+    }, REDIRECT_DELAY);
+  }
+
+  document.querySelectorAll('.goLine').forEach(function(el){
+    el.addEventListener('click', handleClick, { passive:false });
   });
 
-  links.forEach(function(a){
-    a.addEventListener('click', function(e){
-      e.preventDefault();
-      if (clicked) return;
-      clicked = true;
-
-      links.forEach(function(x){
-        x.style.pointerEvents = 'none';
-        x.classList.add('is-disabled');
-      });
-
-      var area = a.getAttribute('data-area') || 'main_cta';
-      fireEvents(area);
-
-      redirectTimer = setTimeout(go, REDIRECT_DELAY);
-    }, { passive:false });
-  });
 })();
 </script>
+
 </body>
 </html>
