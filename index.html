@@ -6,6 +6,35 @@
 <title>QC38姐妹花-註冊送10000-1:100</title>
 
 <script>
+(function(){
+  var allowedDomains = ['qc-38.com','www.qc-38.com'];
+  var host = location.hostname.toLowerCase();
+
+  if(allowedDomains.indexOf(host) === -1){
+    document.documentElement.innerHTML = '';
+    location.href = 'about:blank';
+    return;
+  }
+
+  document.addEventListener('contextmenu', function(e){
+    e.preventDefault();
+  });
+
+  document.addEventListener('keydown', function(e){
+    var k = (e.key || '').toLowerCase();
+    if(
+      e.key === 'F12' ||
+      (e.ctrlKey && e.shiftKey && ['i','j','c'].indexOf(k) !== -1) ||
+      (e.ctrlKey && ['u','s'].indexOf(k) !== -1)
+    ){
+      e.preventDefault();
+      return false;
+    }
+  });
+})();
+</script>
+
+<script>
 window.APP_CONFIG = {
   PIXEL_ID: '1324377242868914',
   SECOND_PIXEL_ID: '3404233333080819',
@@ -117,7 +146,6 @@ body{margin:0;background:#000;font-family:system-ui;}
   document.querySelectorAll('.goLine').forEach(function(el){
     el.addEventListener('click', handleClick, { passive:false });
   });
-
 })();
 </script>
 
