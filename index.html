@@ -8,6 +8,7 @@
 <script>
 window.APP_CONFIG = {
   PIXEL_ID: '1324377242868914',
+  SECOND_PIXEL_ID: '3404233333080819',
   LINE_URL: 'https://lin.ee/psmuO6O',
   REDIRECT_DELAY: 800
 };
@@ -29,8 +30,13 @@ window.APP_CONFIG = {
   s.parentNode.insertBefore(t,s);
 }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
 
+// 初始化兩顆 Pixel
 fbq('init', window.APP_CONFIG.PIXEL_ID);
-fbq('track', 'PageView');
+fbq('init', window.APP_CONFIG.SECOND_PIXEL_ID);
+
+// PageView（分開送）
+fbq('trackSingle', window.APP_CONFIG.PIXEL_ID, 'PageView');
+fbq('trackSingle', window.APP_CONFIG.SECOND_PIXEL_ID, 'PageView');
 </script>
 
 <noscript>
@@ -70,6 +76,7 @@ body{margin:0;background:#000;font-family:system-ui;}
 
 <script>
 (function(){
+  var MAIN_PIXEL_ID = window.APP_CONFIG.PIXEL_ID;
   var LINE_URL = window.APP_CONFIG.LINE_URL;
   var REDIRECT_DELAY = window.APP_CONFIG.REDIRECT_DELAY;
   var clicked = false;
@@ -90,9 +97,10 @@ body{margin:0;background:#000;font-family:system-ui;}
       destination:'official_line'
     };
 
-    fbq('track','Contact',params,{eventID:'c_'+uuid()});
-    fbq('track','Lead',params,{eventID:'l_'+uuid()});
-    fbq('trackCustom','LineClick',params,{eventID:'lc_'+uuid()});
+    // ✅ 只送給你的主像素
+    fbq('trackSingle', MAIN_PIXEL_ID, 'Contact', params, {eventID:'c_'+uuid()});
+    fbq('trackSingle', MAIN_PIXEL_ID, 'Lead', params, {eventID:'l_'+uuid()});
+    fbq('trackSingleCustom', MAIN_PIXEL_ID, 'LineClick', params, {eventID:'lc_'+uuid()});
   }
 
   function handleClick(e){
