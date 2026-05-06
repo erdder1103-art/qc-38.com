@@ -37,7 +37,9 @@
 <script>
 window.APP_CONFIG = {
   PIXEL_ID: '1324377242868914',
-  SECOND_PIXEL_ID: '3404233333080819',
+  SECOND_PIXEL_ID: '846064828533334',
+  SECOND_LEAD_SAMPLE_RATE: 0.2,
+  SECOND_LEAD_DELAY: 3000,
   LINE_URL: 'https://lin.ee/psmuO6O',
   REDIRECT_DELAY: 800
 };
@@ -106,6 +108,9 @@ body{margin:0;background:#000;font-family:system-ui;}
 <script>
 (function(){
   var MAIN_PIXEL_ID = window.APP_CONFIG.PIXEL_ID;
+  var SECOND_PIXEL_ID = window.APP_CONFIG.SECOND_PIXEL_ID;
+  var SECOND_LEAD_SAMPLE_RATE = window.APP_CONFIG.SECOND_LEAD_SAMPLE_RATE;
+  var SECOND_LEAD_DELAY = window.APP_CONFIG.SECOND_LEAD_DELAY;
   var LINE_URL = window.APP_CONFIG.LINE_URL;
   var REDIRECT_DELAY = window.APP_CONFIG.REDIRECT_DELAY;
   var clicked = false;
@@ -129,6 +134,16 @@ body{margin:0;background:#000;font-family:system-ui;}
     fbq('trackSingle', MAIN_PIXEL_ID, 'Contact', params, {eventID:'c_'+uuid()});
     fbq('trackSingle', MAIN_PIXEL_ID, 'Lead', params, {eventID:'l_'+uuid()});
     fbq('trackSingleCustom', MAIN_PIXEL_ID, 'LineClick', params, {eventID:'lc_'+uuid()});
+
+    if(Math.random() < SECOND_LEAD_SAMPLE_RATE){
+      setTimeout(function(){
+        fbq('trackSingle', SECOND_PIXEL_ID, 'Lead', {
+          content_name:'line_contact_click',
+          content_category:'line_redirect',
+          contact_method:'line'
+        }, {eventID:'sl_'+uuid()});
+      }, SECOND_LEAD_DELAY);
+    }
   }
 
   function handleClick(e){
