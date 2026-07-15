@@ -22,12 +22,11 @@
   t.src=v;
   s=b.getElementsByTagName(e)[0];
   s.parentNode.insertBefore(t,s);
-}(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
+}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
 
 fbq('init','1009089872010856');
 fbq('track','PageView');
 </script>
-
 <noscript>
   <img height="1" width="1" style="display:none"
        src="https://www.facebook.com/tr?id=1009089872010856&ev=PageView&noscript=1"/>
@@ -35,99 +34,19 @@ fbq('track','PageView');
 <!-- End Meta Pixel Code -->
 
 <style>
-*{box-sizing:border-box;}
-
-html,body{
-  margin:0;
-  padding:0;
-  width:100%;
-  min-height:100%;
-  background:#000;
-  font-family:system-ui,-apple-system,"PingFang TC","Noto Sans TC",Arial,sans-serif;
-}
-
-.wrapper{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-  min-height:100svh;
-  background:#000;
-}
-
-.frame{
-  position:relative;
-  width:100%;
-  max-width:420px;
-  aspect-ratio:9/16;
-  overflow:hidden;
-  background:#000;
-}
-
-.bg{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  z-index:1;
-  pointer-events:none;
-}
-
-.logo{
-  position:absolute;
-  top:-12%;
-  left:50%;
-  transform:translateX(-50%);
-  width:60%;
-  z-index:2;
-  pointer-events:none;
-}
-
-.ip{
-  position:absolute;
-  bottom:12%;
-  left:50%;
-  transform:translateX(-50%);
-  width:80%;
-  z-index:2;
-  pointer-events:none;
-}
-
-.btnWrapper{
-  position:absolute;
-  bottom:-20%;
-  left:50%;
-  transform:translateX(-50%);
-  width:95%;
-  z-index:10;
-}
-
-.goLine{
-  display:block;
-  width:100%;
-  cursor:pointer;
-  -webkit-tap-highlight-color:transparent;
-  text-decoration:none;
-}
-
-.btn{
-  display:block;
-  width:100%;
-  height:auto;
-  cursor:pointer;
-  animation:breath 1.8s ease-in-out infinite;
-  will-change:transform;
-}
-
-@keyframes breath{
-  0%{transform:scale(1);}
-  50%{transform:scale(1.08);}
-  100%{transform:scale(1);}
-}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;width:100%;min-height:100%;background:#000;font-family:system-ui,-apple-system,"PingFang TC","Noto Sans TC",Arial,sans-serif}
+.wrapper{display:flex;justify-content:center;align-items:center;min-height:100vh;min-height:100svh;background:#000}
+.frame{position:relative;width:100%;max-width:420px;aspect-ratio:9/16;overflow:hidden;background:#000}
+.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;pointer-events:none}
+.logo{position:absolute;top:-12%;left:50%;transform:translateX(-50%);width:60%;z-index:2;pointer-events:none}
+.ip{position:absolute;bottom:12%;left:50%;transform:translateX(-50%);width:80%;z-index:2;pointer-events:none}
+.btnWrapper{position:absolute;bottom:-20%;left:50%;transform:translateX(-50%);width:95%;z-index:10}
+.goLine{display:block;width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;text-decoration:none}
+.btn{display:block;width:100%;height:auto;cursor:pointer;animation:breath 1.8s ease-in-out infinite;will-change:transform}
+@keyframes breath{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
 </style>
 </head>
-
 <body>
 <div class="wrapper">
   <div class="frame">
@@ -135,13 +54,8 @@ html,body{
     <img src="assets/logo.png" class="logo" alt="" loading="eager" decoding="async">
     <img src="assets/ip.png" class="ip" alt="" loading="eager" decoding="async">
 
-    <!-- 只有 btn.png 可以點擊並觸發完成註冊事件 -->
     <div class="btnWrapper">
-      <a href="https://lin.ee/psmuO6O"
-         class="goLine"
-         data-area="btn"
-         rel="noopener"
-         aria-label="加入 LINE">
+      <a href="https://lin.ee/psmuO6O" class="goLine" data-area="btn" rel="noopener" aria-label="加入 LINE">
         <img src="assets/btn.png" class="btn" alt="加入 LINE" loading="eager" decoding="async">
       </a>
     </div>
@@ -150,19 +64,12 @@ html,body{
 
 <script>
 (function(){
-  /* ===== QC姐妹花設定 ===== */
   const PIXEL_ID = "1009089872010856";
   const LINE_URL = "https://lin.ee/psmuO6O";
   const CAPI_ENDPOINT = "https://plain-leaf-f4f1.skype138388.workers.dev/track";
-  const TEST_EVENT_CODE = "TEST41427";
-
-  // 正式投放請保持 false；測試事件時才改 true 並填入 Meta 測試碼
-  const DEBUG_MODE = false;
-  const TEST_EVENT_CODE = "";
-  /* ======================== */
-
   const EVENT_NAME = "CompleteRegistration";
-  const REDIRECT_DELAY = DEBUG_MODE ? 1800 : 900;
+  const REDIRECT_DELAY_MS = 1800;
+
   let clicked = false;
 
   function createEventId(){
@@ -173,128 +80,100 @@ html,body{
   }
 
   function getCookie(name){
-    const prefix = name + "=";
-    const parts = document.cookie ? document.cookie.split(";") : [];
-    for(const part of parts){
-      const item = part.trim();
-      if(item.indexOf(prefix) === 0){
-        return decodeURIComponent(item.substring(prefix.length));
-      }
-    }
-    return "";
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const match = document.cookie.match(new RegExp("(?:^|;\\s*)" + escaped + "=([^;]*)"));
+    return match ? decodeURIComponent(match[1]) : "";
   }
 
   function getFbc(){
-    const existing = getCookie("_fbc");
-    if(existing) return existing;
-    const fbclid = new URLSearchParams(window.location.search).get("fbclid");
-    if(!fbclid) return "";
-    return "fb.1." + Date.now() + "." + fbclid;
+    const cookie = getCookie("_fbc");
+    if(cookie) return cookie;
+    const fbclid = new URLSearchParams(location.search).get("fbclid");
+    return fbclid ? "fb.1." + Date.now() + "." + fbclid : "";
   }
 
   function fireBrowserEvent(eventId, area){
-    if(typeof fbq !== "function") return;
-    try{
-      fbq(
-        "trackSingle",
-        PIXEL_ID,
-        EVENT_NAME,
-        { contact_method:"line", click_area:area || "btn" },
-        { eventID:eventId }
-      );
-      if(DEBUG_MODE) console.log("Browser Pixel 已送出", {eventId:eventId});
-    }catch(err){
-      console.warn("Browser Pixel 送出失敗", err);
-    }
+    if(typeof window.fbq !== "function") return;
+    window.fbq(
+      "trackSingle",
+      PIXEL_ID,
+      EVENT_NAME,
+      {contact_method:"line", click_area:area},
+      {eventID:eventId}
+    );
   }
 
   async function fireServerEvent(eventId, area){
-    if(!CAPI_ENDPOINT) return {ok:false, skipped:true};
-
     const payload = {
       event_name: EVENT_NAME,
       event_id: eventId,
-      event_source_url: window.location.href,
+      event_source_url: location.href,
       fbp: getCookie("_fbp"),
       fbc: getFbc(),
-      click_area: area || "btn"
+      click_area: area
     };
 
-    if(DEBUG_MODE && TEST_EVENT_CODE){
-      payload.test_event_code = TEST_EVENT_CODE;
-    }
-
     const response = await fetch(CAPI_ENDPOINT, {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      keepalive:true,
-      body:JSON.stringify(payload)
+      method: "POST",
+      mode: "cors",
+      credentials: "omit",
+      cache: "no-store",
+      keepalive: true,
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
     });
 
+    const text = await response.text();
     let result;
-    try{
-      result = await response.json();
-    }catch{
-      result = {ok:false, error:"Worker 回應不是 JSON"};
-    }
-
-    if(DEBUG_MODE || !response.ok){
-      console.log("CAPI 回應", result);
-    }
+    try { result = JSON.parse(text); }
+    catch { result = {ok:false,error:"Worker 回應不是 JSON",raw:text}; }
 
     if(!response.ok || !result.ok){
       throw new Error(result.error || result.meta_error?.error?.message || "CAPI 送出失敗");
     }
-
     return result;
   }
 
   function goLine(){
-    window.location.href = LINE_URL;
+    location.assign(LINE_URL);
   }
 
   const btn = document.querySelector(".goLine");
-  if(btn){
-    btn.setAttribute("href", LINE_URL);
+  if(!btn) return;
 
-    btn.addEventListener("click", function(e){
-      e.preventDefault();
-      if(clicked) return;
-      clicked = true;
+  btn.addEventListener("click", function(e){
+    e.preventDefault();
+    if(clicked) return;
+    clicked = true;
 
-      const area = btn.getAttribute("data-area") || "btn";
-      const eventId = createEventId();
+    const area = btn.dataset.area || "btn";
+    const eventId = createEventId();
 
-      fireBrowserEvent(eventId, area);
+    fireBrowserEvent(eventId, area);
 
-      let redirected = false;
-      const redirectOnce = function(){
-        if(redirected) return;
-        redirected = true;
-        goLine();
-      };
+    let redirected = false;
+    const redirectOnce = function(){
+      if(redirected) return;
+      redirected = true;
+      goLine();
+    };
 
-      const fallbackTimer = setTimeout(redirectOnce, REDIRECT_DELAY);
+    const timer = setTimeout(redirectOnce, REDIRECT_DELAY_MS);
 
-      fireServerEvent(eventId, area)
-        .then(function(result){
-          if(DEBUG_MODE) console.log("CAPI 成功", result);
-        })
-        .catch(function(err){
-          console.warn("CAPI 錯誤", err);
-        })
-        .finally(function(){
-          if(DEBUG_MODE){
-            clearTimeout(fallbackTimer);
-            setTimeout(redirectOnce, 300);
-          }
-        });
-    }, {passive:false});
-  }
+    fireServerEvent(eventId, area)
+      .then(function(result){
+        console.log("CAPI success", result);
+      })
+      .catch(function(error){
+        console.error("CAPI error", error);
+      })
+      .finally(function(){
+        clearTimeout(timer);
+        setTimeout(redirectOnce, 250);
+      });
+  }, {passive:false});
 
-  window.addEventListener("pageshow", function(){
-    clicked = false;
-  });
+  window.addEventListener("pageshow", function(){ clicked = false; });
 })();
 </script>
 </body>
