@@ -1,9 +1,8 @@
-```html
 <!doctype html>
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>QC姐妹花</title>
 
 <!-- Meta Pixel Code -->
@@ -25,20 +24,18 @@
   s.parentNode.insertBefore(t,s);
 }(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
 
-fbq('init','1528071225365337');
+fbq('init','1009089872010856');
 fbq('track','PageView');
 </script>
 
 <noscript>
   <img height="1" width="1" style="display:none"
-       src="https://www.facebook.com/tr?id=1528071225365337&ev=PageView&noscript=1"/>
+       src="https://www.facebook.com/tr?id=1009089872010856&ev=PageView&noscript=1"/>
 </noscript>
 <!-- End Meta Pixel Code -->
 
 <style>
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box;}
 
 html,body{
   margin:0;
@@ -138,7 +135,7 @@ html,body{
     <img src="assets/logo.png" class="logo" alt="" loading="eager" decoding="async">
     <img src="assets/ip.png" class="ip" alt="" loading="eager" decoding="async">
 
-    <!-- 只有真正按鈕 Btn 可以點擊 -->
+    <!-- 只有 btn.png 可以點擊並觸發完成註冊事件 -->
     <div class="btnWrapper">
       <a href="https://lin.ee/psmuO6O"
          class="goLine"
@@ -153,53 +150,84 @@ html,body{
 
 <script>
 (function(){
+  /* ===== 每次換活動只需要改這三項 ===== */
+  const PIXEL_ID = "1009089872010856";
   const LINE_URL = "https://lin.ee/psmuO6O";
-  const PIXEL_ID = "1528071225365337";
-  const REDIRECT_DELAY = 900;
+  const CAPI_ENDPOINT = "https://你的-worker.workers.dev/track";
+  /* =================================== */
 
+  const EVENT_NAME = "CompleteRegistration";
+  const REDIRECT_DELAY = 900;
   let clicked = false;
 
-  function uuidv4(){
+  function createEventId(){
     if(window.crypto && typeof window.crypto.randomUUID === "function"){
-      return window.crypto.randomUUID();
+      return "reg_" + window.crypto.randomUUID();
     }
-
-    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,function(c){
-      var r = Math.random() * 16 | 0;
-      var v = c === "x" ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-    });
+    return "reg_" + Date.now() + "_" + Math.random().toString(36).slice(2,12);
   }
 
-  function firePixelEvents(area){
+  function getCookie(name){
+    const prefix = name + "=";
+    const parts = document.cookie ? document.cookie.split(";") : [];
+    for(const part of parts){
+      const item = part.trim();
+      if(item.indexOf(prefix) === 0){
+        return decodeURIComponent(item.substring(prefix.length));
+      }
+    }
+    return "";
+  }
+
+  function getFbc(){
+    const existing = getCookie("_fbc");
+    if(existing) return existing;
+
+    const fbclid = new URLSearchParams(window.location.search).get("fbclid");
+    if(!fbclid) return "";
+    return "fb.1." + Date.now() + "." + fbclid;
+  }
+
+  function fireBrowserEvent(eventId, area){
     if(typeof fbq !== "function") return;
 
-    const commonParams = {
-      action_source: "website",
-      contact_method: "line",
-      click_area: area || "btn",
-      event_source_url: window.location.href
-    };
-
     try{
       fbq(
         "trackSingle",
         PIXEL_ID,
-        "Lead",
-        commonParams,
-        {eventID: uuidv4()}
+        EVENT_NAME,
+        {
+          contact_method: "line",
+          click_area: area || "btn"
+        },
+        {eventID:eventId}
       );
-    }catch(e){}
+    }catch(err){
+      console.warn("Browser Pixel 送出失敗", err);
+    }
+  }
 
-    try{
-      fbq(
-        "trackSingle",
-        PIXEL_ID,
-        "Contact",
-        commonParams,
-        {eventID: uuidv4()}
-      );
-    }catch(e){}
+  function fireServerEvent(eventId, area){
+    if(!CAPI_ENDPOINT || CAPI_ENDPOINT.includes("你的-worker")){
+      return Promise.resolve();
+    }
+
+    return fetch(CAPI_ENDPOINT, {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      keepalive:true,
+      body:JSON.stringify({
+        pixel_id:PIXEL_ID,
+        event_name:EVENT_NAME,
+        event_id:eventId,
+        event_source_url:window.location.href,
+        fbp:getCookie("_fbp"),
+        fbc:getFbc(),
+        click_area:area || "btn"
+      })
+    }).catch(function(err){
+      console.warn("CAPI 送出失敗", err);
+    });
   }
 
   function goLine(){
@@ -207,17 +235,19 @@ html,body{
   }
 
   const btn = document.querySelector(".goLine");
-
   if(btn){
+    btn.setAttribute("href", LINE_URL);
+
     btn.addEventListener("click", function(e){
       e.preventDefault();
-
       if(clicked) return;
       clicked = true;
 
       const area = btn.getAttribute("data-area") || "btn";
+      const eventId = createEventId();
 
-      firePixelEvents(area);
+      fireBrowserEvent(eventId, area);
+      fireServerEvent(eventId, area);
 
       setTimeout(goLine, REDIRECT_DELAY);
     }, {passive:false});
@@ -230,4 +260,3 @@ html,body{
 </script>
 </body>
 </html>
-```
