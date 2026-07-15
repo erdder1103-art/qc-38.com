@@ -150,14 +150,18 @@ html,body{
 
 <script>
 (function(){
-  /* ===== 每次換活動只需要改這三項 ===== */
+  /* ===== QC姐妹花設定 ===== */
   const PIXEL_ID = "1009089872010856";
   const LINE_URL = "https://lin.ee/psmuO6O";
-  const CAPI_ENDPOINT = "https://plain-leaf-f4f1.skype138388.workers.dev";
-  /* =================================== */
+  const CAPI_ENDPOINT = "https://plain-leaf-f4f1.skype138388.workers.dev/track";
+
+  // 正式投放請保持 false；測試事件時才改 true 並填入 Meta 測試碼
+  const DEBUG_MODE = false;
+  const TEST_EVENT_CODE = "";
+  /* ======================== */
 
   const EVENT_NAME = "CompleteRegistration";
-  const REDIRECT_DELAY = 900;
+  const REDIRECT_DELAY = DEBUG_MODE ? 1800 : 900;
   let clicked = false;
 
   function createEventId(){
@@ -182,7 +186,6 @@ html,body{
   function getFbc(){
     const existing = getCookie("_fbc");
     if(existing) return existing;
-
     const fbclid = new URLSearchParams(window.location.search).get("fbclid");
     if(!fbclid) return "";
     return "fb.1." + Date.now() + "." + fbclid;
@@ -190,44 +193,59 @@ html,body{
 
   function fireBrowserEvent(eventId, area){
     if(typeof fbq !== "function") return;
-
     try{
       fbq(
         "trackSingle",
         PIXEL_ID,
         EVENT_NAME,
-        {
-          contact_method: "line",
-          click_area: area || "btn"
-        },
-        {eventID:eventId}
+        { contact_method:"line", click_area:area || "btn" },
+        { eventID:eventId }
       );
+      if(DEBUG_MODE) console.log("Browser Pixel 已送出", {eventId:eventId});
     }catch(err){
       console.warn("Browser Pixel 送出失敗", err);
     }
   }
 
-  function fireServerEvent(eventId, area){
-    if(!CAPI_ENDPOINT || CAPI_ENDPOINT.includes("你的-worker")){
-      return Promise.resolve();
+  async function fireServerEvent(eventId, area){
+    if(!CAPI_ENDPOINT) return {ok:false, skipped:true};
+
+    const payload = {
+      event_name: EVENT_NAME,
+      event_id: eventId,
+      event_source_url: window.location.href,
+      fbp: getCookie("_fbp"),
+      fbc: getFbc(),
+      click_area: area || "btn"
+    };
+
+    if(DEBUG_MODE && TEST_EVENT_CODE){
+      payload.test_event_code = TEST_EVENT_CODE;
     }
 
-    return fetch(CAPI_ENDPOINT, {
+    const response = await fetch(CAPI_ENDPOINT, {
       method:"POST",
       headers:{"Content-Type":"application/json"},
       keepalive:true,
-      body:JSON.stringify({
-        pixel_id:PIXEL_ID,
-        event_name:EVENT_NAME,
-        event_id:eventId,
-        event_source_url:window.location.href,
-        fbp:getCookie("_fbp"),
-        fbc:getFbc(),
-        click_area:area || "btn"
-      })
-    }).catch(function(err){
-      console.warn("CAPI 送出失敗", err);
+      body:JSON.stringify(payload)
     });
+
+    let result;
+    try{
+      result = await response.json();
+    }catch{
+      result = {ok:false, error:"Worker 回應不是 JSON"};
+    }
+
+    if(DEBUG_MODE || !response.ok){
+      console.log("CAPI 回應", result);
+    }
+
+    if(!response.ok || !result.ok){
+      throw new Error(result.error || result.meta_error?.error?.message || "CAPI 送出失敗");
+    }
+
+    return result;
   }
 
   function goLine(){
@@ -247,9 +265,29 @@ html,body{
       const eventId = createEventId();
 
       fireBrowserEvent(eventId, area);
-      fireServerEvent(eventId, area);
 
-      setTimeout(goLine, REDIRECT_DELAY);
+      let redirected = false;
+      const redirectOnce = function(){
+        if(redirected) return;
+        redirected = true;
+        goLine();
+      };
+
+      const fallbackTimer = setTimeout(redirectOnce, REDIRECT_DELAY);
+
+      fireServerEvent(eventId, area)
+        .then(function(result){
+          if(DEBUG_MODE) console.log("CAPI 成功", result);
+        })
+        .catch(function(err){
+          console.warn("CAPI 錯誤", err);
+        })
+        .finally(function(){
+          if(DEBUG_MODE){
+            clearTimeout(fallbackTimer);
+            setTimeout(redirectOnce, 300);
+          }
+        });
     }, {passive:false});
   }
 
